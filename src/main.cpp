@@ -190,8 +190,9 @@ int main(int argc, char* argv[])
 		lastTime = curTime;
 
 		window.update(deltaTime);
+        window.render();
 		Renderer::swapBuffers(); //swap here so we can read the last screen state during updates (see ImageComponent::copyScreen())
-		window.render();
+		
 
 		if(Settings::getInstance()->getBool("DRAWFRAMERATE"))
 		{

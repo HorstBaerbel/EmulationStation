@@ -22,8 +22,8 @@ namespace Renderer
 	void onInit();
 	void onDeinit();
 
-	unsigned int getScreenWidth();
-	unsigned int getScreenHeight();
+	int getScreenWidth();
+	int getScreenHeight();
 
 	enum FontSize { SMALL, MEDIUM, LARGE, FONT_SIZE_COUNT };
 	Font* getDefaultFont(FontSize size);

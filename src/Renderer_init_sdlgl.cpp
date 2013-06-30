@@ -21,13 +21,14 @@ namespace Renderer
 {
 	static bool initialCursorState;
 
-	unsigned int display_width = 0;
-	unsigned int display_height = 0;
+	int display_width = 0;
+	int display_height = 0;
 
-	unsigned int getScreenWidth() { return display_width; }
-	unsigned int getScreenHeight() { return display_height; }
+	int getScreenWidth() { return display_width; }
+	int getScreenHeight() { return display_height; }
 
-	SDL_Surface* sdlScreen = NULL;
+    SDL_Window * window = nullptr;
+    SDL_GLContext context = nullptr;
 
 	bool createSurface() //unsigned int display_width, unsigned int display_height)
 	{
@@ -39,11 +40,27 @@ namespace Renderer
 			return false;
 		}
 
-		//ATM it is best to just leave the window icon alone on windows.
-		//When compiled as a Windows application, ES at least has an icon in the taskbar
-		//The method below looks pretty shite as alpha isn't taken into account...
-#ifndef WIN32
-		//try loading PNG from memory
+        //if width or height are zero, use the desktop resolution of the first desktop
+        if (display_width == 0 || display_height == 0) {
+            SDL_DisplayMode mode;
+            SDL_GetDesktopDisplayMode(0, &mode);
+            display_width = mode.w;
+            display_height = mode.h;
+        }
+        
+        //first create SDL window
+        window = SDL_CreateWindow("EmulationStation", 0, 0, display_width, display_height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | (Settings::getInstance()->getBool("WINDOWED") ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP));
+        if(window == nullptr)
+		{
+			LOG(LogError) << "Error creating SDL video window!";
+			return false;
+		}
+        //usually display width/height are not specified, i.e. zero, which SDL automatically takes as "native resolution"
+		//so, since other things rely on the size of the screen (damn currently unnormalized coordinate system), we set it here
+		//even though the system was already initialized
+        SDL_GetWindowSize(window, &display_width, &display_height);
+
+		//set window icon. try loading PNG from memory
 		size_t width = 0;
 		size_t height = 0;
 		std::vector<unsigned char> rawData = ImageIO::loadFromMemoryRGBA32(es_logo_32_data, es_logo_32_data_len, width, height);
@@ -56,34 +73,29 @@ namespace Renderer
 #endif
 			//try creating SDL surface from logo data
 			SDL_Surface * logoSurface = SDL_CreateRGBSurfaceFrom((void *)rawData.data(), width, height, 32, width*4, rmask, gmask, bmask, amask);
-			if (logoSurface != nullptr) {
-				//change window icon. this sucks atm, but there's nothing better we can do. SDL 1.3 or 2.0 should sort this out...
-				SDL_WM_SetIcon(logoSurface, nullptr);
-			}
+            if (logoSurface != nullptr) {
+                SDL_SetWindowIcon(window, logoSurface);
+                SDL_FreeSurface(logoSurface);
+            }
+            else {
+                LOG(LogError) << "Error creating SDL surface for icon: " << SDL_GetError() << "!";
+            }
 		}
-#endif
 
-		SDL_WM_SetCaption("EmulationStation", "EmulationStation");
-
-		SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+        //set up opengl attributes
+        SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
 		SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 		SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-		//SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1); //vsync
-		sdlScreen = SDL_SetVideoMode(display_width, display_height, 16, SDL_OPENGL | (Settings::getInstance()->getBool("WINDOWED") ? 0 : SDL_FULLSCREEN));
 
-		if(sdlScreen == NULL)
+        //create opengl context
+        context = SDL_GL_CreateContext(window);
+		if(context == nullptr)
 		{
-			LOG(LogError) << "Error creating SDL video surface!";
+			LOG(LogError) << "Error creating OpenGL context!";
 			return false;
 		}
-
-		//usually display width/height are not specified, i.e. zero, which SDL automatically takes as "native resolution"
-		//so, since other things rely on the size of the screen (damn currently unnormalized coordinate system), we set it here
-		//even though the system was already initialized
-		display_width = sdlScreen->w;
-		display_height = sdlScreen->h;
 
 		LOG(LogInfo) << "Created surface successfully.";
 
@@ -95,14 +107,16 @@ namespace Renderer
 
 	void swapBuffers()
 	{
-		SDL_GL_SwapBuffers();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        SDL_GL_SwapWindow(window);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void destroySurface()
 	{
-		SDL_FreeSurface(sdlScreen);
-		sdlScreen = NULL;
+        SDL_GL_DeleteContext(context);
+        SDL_DestroyWindow(window);
+		context = nullptr;
+        window = nullptr;
 
 		//show mouse cursor
 		SDL_ShowCursor(initialCursorState);

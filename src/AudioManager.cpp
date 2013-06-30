@@ -14,6 +14,8 @@ void AudioManager::mixAudio(void *unused, Uint8 *stream, int len)
 {
 	bool stillPlaying = false;
 
+    //clear old data in the buffer
+    SDL_memset(stream, 0, len);
 	//iterate through all our samples
 	std::vector<std::shared_ptr<Sound>>::const_iterator soundIt = sSoundVector.cbegin();
 	while (soundIt != sSoundVector.cend())

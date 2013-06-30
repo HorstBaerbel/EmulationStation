@@ -28,7 +28,7 @@ bool InputDevice::operator==(const InputDevice & b) const
 
 InputManager::InputManager(Window* window) : mWindow(window), 
 	mJoysticks(NULL), mInputConfigs(NULL), mKeyboardInputConfig(NULL), mPrevAxisValues(NULL),
-	mNumJoysticks(0), mNumPlayers(0), devicePollingTimer(nullptr)
+	mNumJoysticks(0), mNumPlayers(0), devicePollingTimer(0)
 {
 }
 
@@ -126,7 +126,7 @@ Uint32 InputManager::devicePollingCallback(Uint32 interval, void* param)
 	event.user.code = SDL_USEREVENT_POLLDEVICES;
 	event.user.data1 = nullptr;
 	event.user.data2 = nullptr;
-	if (SDL_PushEvent(&event) != 0) {
+	if (SDL_PushEvent(&event) != 1) {
 		LOG(LogError) << "InputManager::devicePollingCallback - SDL event queue is full!";
 	}
 
@@ -347,20 +347,28 @@ void InputManager::loadConfig()
 		{
 			getInputConfigByDevice(DEVICE_KEYBOARD)->loadFromXML(node, mNumPlayers);
 			mNumPlayers++;
-		}else if(type == "joystick")
+		}
+        else if(type == "joystick")
 		{
 			bool found = false;
 			std::string devName = node.attribute("deviceName").as_string();
 			for(int i = 0; i < mNumJoysticks; i++)
 			{
-				if(!configuredDevice[i] && SDL_JoystickName(i) == devName)
-				{
-					mInputConfigs[i]->loadFromXML(node, mNumPlayers);
-					mNumPlayers++;
-					found = true;
-					configuredDevice[i] = true;
-					break;
-				}
+                SDL_Joystick * joystick = SDL_JoystickOpen(i);
+                if (joystick != nullptr) {
+                    if(!configuredDevice[i] && SDL_JoystickName(joystick) == devName)
+                    {
+                        mInputConfigs[i]->loadFromXML(node, mNumPlayers);
+                        mNumPlayers++;
+                        found = true;
+                        configuredDevice[i] = true;
+                        break;
+                    }
+                    SDL_JoystickClose(joystick);
+                }
+                else {
+                    LOG(LogWarning) << "WARNING: Failed to open device " << i << " (joystick) !\n";
+                }
 			}
 
 			if(!found)

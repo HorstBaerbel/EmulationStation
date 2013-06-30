@@ -160,9 +160,16 @@ void InputConfig::writeToXML(pugi::xml_node parent)
 	if(mDeviceId == DEVICE_KEYBOARD)
 	{
 		cfg.append_attribute("type") = "keyboard";
-	}else{
+    }
+    else{
 		cfg.append_attribute("type") = "joystick";
-		cfg.append_attribute("deviceName") = SDL_JoystickName(mDeviceId);
+        SDL_Joystick * joystick = SDL_JoystickOpen(mDeviceId);
+        if (joystick != nullptr) {
+            cfg.append_attribute("deviceName") = SDL_JoystickName(joystick);
+        }
+        else {
+            LOG(LogWarning) << "WARNING: Failed to open device " << mDeviceId << " (joystick)!\n";
+        }
 	}
 
 	typedef std::map<std::string, Input>::iterator it_type;
