@@ -36,6 +36,7 @@ public:
 	virtual void onOffsetChanged() {};
 
 	Vector2u getSize();
+	void setSize(Vector2u size);
 	
 	void setParent(GuiComponent* parent);
 	GuiComponent* getParent();
@@ -46,6 +47,9 @@ public:
 	unsigned int getChildCount();
 	GuiComponent* getChild(unsigned int i);
 
+	float getOpacity() const;
+	void setOpacity(float opacity);
+
 protected:
 	//Default implementation just renders children - you should probably always call GuiComponent::onRender at some point in your custom onRender.
 	virtual void onRender();
@@ -54,6 +58,7 @@ protected:
 	GuiComponent* mParent;
 	Vector2i mOffset;
 	Vector2u mSize;
+	float mOpacity;
 	std::vector<GuiComponent*> mChildren;
 };
 

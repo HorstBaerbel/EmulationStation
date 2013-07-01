@@ -48,7 +48,7 @@ void ComponentListComponent::setEntry(Vector2u pos, Vector2u size, GuiComponent*
 		return;
 	}
 
-	ComponentEntry entry(Rect(pos.x, pos.y, size.x, size.y), component, updateType, canFocus, align);
+	ComponentEntry entry(Recti(pos.x, pos.y, size.x, size.y), component, updateType, canFocus, align);
 	
 	mEntries.push_back(entry);
 

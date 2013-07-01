@@ -3,7 +3,8 @@
 #include "Log.h"
 #include "Renderer.h"
 
-GuiComponent::GuiComponent(Window* window) : mWindow(window), mParent(NULL)
+GuiComponent::GuiComponent(Window* window)
+	: mWindow(window), mParent(NULL), mOpacity(1.0f)
 {
 }
 
@@ -102,6 +103,11 @@ Vector2u GuiComponent::getSize()
 	return mSize;
 }
 
+void GuiComponent::setSize(Vector2u size)
+{
+	mSize = size;
+}
+
 //Children stuff.
 void GuiComponent::addChild(GuiComponent* cmp)
 {
@@ -155,4 +161,14 @@ void GuiComponent::setParent(GuiComponent* parent)
 GuiComponent* GuiComponent::getParent()
 {
 	return mParent;
+}
+
+float GuiComponent::getOpacity() const
+{
+	return mOpacity;
+}
+
+void GuiComponent::setOpacity(float opacity)
+{
+	mOpacity = opacity;
 }

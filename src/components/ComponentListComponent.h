@@ -37,14 +37,14 @@ private:
 	class ComponentEntry
 	{
 	public:
-		Rect box;
+		Recti box;
 		GuiComponent* component;
 		UpdateBehavior updateType;
 		AlignmentType alignment;
 		bool canFocus;
 
 		ComponentEntry() : component(NULL), updateType(UpdateAlways), canFocus(true), alignment(AlignCenter) {};
-		ComponentEntry(Rect b, GuiComponent* comp, UpdateBehavior update, bool focus, AlignmentType align) : box(b), component(comp), updateType(update), canFocus(focus), alignment(align) {};
+		ComponentEntry(Recti b, GuiComponent* comp, UpdateBehavior update, bool focus, AlignmentType align) : box(b), component(comp), updateType(update), canFocus(focus), alignment(align) {};
 
 		operator bool() const
 		{

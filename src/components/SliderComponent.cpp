@@ -85,11 +85,6 @@ void SliderComponent::onRender()
 	GuiComponent::onRender();
 }
 
-void SliderComponent::setSize(Vector2u size)
-{
-	mSize = size;
-}
-
 void SliderComponent::setValue(float value)
 {
 	mValue = value;

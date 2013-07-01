@@ -17,8 +17,6 @@ ImageComponent::ImageComponent(Window* window, int offsetX, int offsetY, std::st
 	mOrigin.x = 0.5;
 	mOrigin.y = 0.5;
 
-	mOpacity = 255;
-
 	mTiled = false;
 
 	mTargetSize.x = resizeWidth;
@@ -240,20 +238,18 @@ void ImageComponent::setFlipY(bool flip)
 
 void ImageComponent::onRender()
 {
-	if(mTextureID && getOpacity() > 0)
+	if(mTextureID && getOpacity() > 0.0f)
 	{
 		GLfloat points[12], texs[12];
 		GLubyte colors[6*4];
 
+		Renderer::buildGLColorArray(colors, 0xFFFFFF00 | (unsigned char)(255.0f * getOpacity()), 6);
 		if(mTiled)
 		{
 			float xCount = (float)mSize.x / mTextureSize.x;
 			float yCount = (float)mSize.y / mTextureSize.y;
-			
-			Renderer::buildGLColorArray(colors, 0xFFFFFF00 | (getOpacity()), 6);
 			buildImageArray(0, 0, points, texs, xCount, yCount);
 		}else{
-			Renderer::buildGLColorArray(colors, 0xFFFFFF00 | (getOpacity()), 6);
 			buildImageArray(0, 0, points, texs);
 		}
 
@@ -351,9 +347,6 @@ bool ImageComponent::hasImage()
 {
 	return !mPath.empty();
 }
-
-unsigned char ImageComponent::getOpacity() { return mOpacity; }
-void ImageComponent::setOpacity(unsigned char opacity) { mOpacity = opacity; }
 
 void ImageComponent::copyScreen()
 {

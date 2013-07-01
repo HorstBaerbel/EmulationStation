@@ -10,7 +10,7 @@
 namespace Renderer {
 	bool loadedFonts = false;
 
-	std::stack<Rect> clipStack;
+	std::stack<Recti> clipStack;
 
 	void setColor4bArray(GLubyte* array, unsigned int color)
 	{
@@ -45,7 +45,7 @@ namespace Renderer {
 
 	void pushClipRect(int x, int y, unsigned int w, unsigned int h)
 	{
-		Rect rect(x, y, w, h);
+		Recti rect(x, y, w, h);
 		if(rect.size.x == 0)
 			rect.size.x = Renderer::getScreenWidth() - rect.pos.x;
 		if(rect.size.y == 0)
@@ -78,7 +78,7 @@ namespace Renderer {
 		{
 			glDisable(GL_SCISSOR_TEST);
 		}else{
-			Rect top = clipStack.top();
+			Recti top = clipStack.top();
 			glScissor(top.pos.x, top.pos.y, top.size.x, top.size.y);
 		}
 	}

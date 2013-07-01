@@ -14,8 +14,6 @@ public:
 	bool input(InputConfig* config, Input input) override;
 	void update(int deltaTime) override;
 	void onRender() override;
-	
-	void setSize(Vector2u size);
 
 private:
 	float mMin, mMax;

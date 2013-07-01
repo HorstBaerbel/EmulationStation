@@ -44,8 +44,10 @@ GuiGameList::GuiGameList(Window* window, bool useDetail) : GuiComponent(window),
 	{
 		mList = new TextListComponent<FileData*>(mWindow, (int)(Renderer::getScreenWidth() * mTheme->getFloat("listOffsetX")), Renderer::getDefaultFont(Renderer::LARGE)->getHeight() + 2, Renderer::getDefaultFont(Renderer::MEDIUM));
 
-		mImageAnimation = new AnimationComponent();
-		mImageAnimation->addChild(mScreenshot);
+		mImageFadeAnimation = new AnimationComponent<float>();
+		mImageFadeAnimation->addChild(mScreenshot, &GuiGameList::setOpacity);
+		mImageOffsetAnimation = new AnimationComponent<Vector2i>();
+		mImageOffsetAnimation->addChild(mScreenshot, &GuiGameList::setOffset);
 	}else{
 		mList = new TextListComponent<FileData*>(mWindow, 0, Renderer::getDefaultFont(Renderer::LARGE)->getHeight() + 2, Renderer::getDefaultFont(Renderer::MEDIUM));
 	}
@@ -57,7 +59,8 @@ GuiGameList::GuiGameList(Window* window, bool useDetail) : GuiComponent(window),
 	
 	mTransitionImage.setOffset(Renderer::getScreenWidth(), 0);
 	mTransitionImage.setOrigin(0, 0);
-	mTransitionAnimation.addChild(&mTransitionImage);
+	mTransitionAnimation = new AnimationComponent<Vector2i>();
+	mTransitionAnimation->addChild(&mTransitionImage, &GuiGameList::setOffset);
 
 	//a hack! the GuiGameList doesn't use the children system right now because I haven't redone it to do so yet.
 	//the list depends on knowing it's final window coordinates (getGlobalOffset), which requires knowing the where the GuiGameList is.
@@ -77,7 +80,8 @@ GuiGameList::~GuiGameList()
 
 	if(mDetailed)
 	{
-		delete mImageAnimation;
+		delete mImageFadeAnimation;
+		delete mImageOffsetAnimation;
 	}
 
 	delete mTheme;
@@ -374,8 +378,8 @@ void GuiGameList::updateDetailData()
 		Vector2i imgOffset = Vector2i((int)(Renderer::getScreenWidth() * 0.10f), 0);
 		mScreenshot->setOffset(getImagePos() - imgOffset);
 
-		mImageAnimation->fadeIn(35);
-		mImageAnimation->move(imgOffset.x, imgOffset.y, 20);
+		mImageFadeAnimation->animateWithDuration(0.0f, 255.0f, 35);
+		mImageOffsetAnimation->animateWithSpeed(Vector2i(0, 0), Vector2i(imgOffset.x, imgOffset.y), Vector2i(20, 20));
 
 		mDescription.setOffset(Vector2i((int)(Renderer::getScreenWidth() * 0.03), mScreenshot->getOffset().y + mScreenshot->getSize().y + 12));
 		mDescription.setText(((GameData*)mList->getSelectedObject())->getDescription());
@@ -388,7 +392,7 @@ void GuiGameList::clearDetailData()
 {
 	if(mDetailed)
 	{
-		mImageAnimation->fadeOut(35);
+		mImageFadeAnimation->animateWithDuration(1.0f, 0.0f, 35);
 	}
 }
 
@@ -437,10 +441,12 @@ GuiGameList* GuiGameList::create(Window* window)
 
 void GuiGameList::update(int deltaTime)
 {
-	if(mDetailed)
-		mImageAnimation->update(deltaTime);
+	if(mDetailed) {
+		mImageFadeAnimation->update(deltaTime);
+		mImageOffsetAnimation->update(deltaTime);
+	}
 
-	mTransitionAnimation.update(deltaTime);
+	mTransitionAnimation->update(deltaTime);
 
 	mList->update(deltaTime);
 }
@@ -448,7 +454,7 @@ void GuiGameList::update(int deltaTime)
 void GuiGameList::doTransition(int dir)
 {
 	mTransitionImage.copyScreen();
-	mTransitionImage.setOpacity(255);
+	mTransitionImage.setOpacity(1.0f);
 	mTransitionImage.setOffset(0, 0);
-	mTransitionAnimation.move(Renderer::getScreenWidth() * dir, 0, 50);
+	mTransitionAnimation->animateWithSpeed(Vector2i(0, 0), Vector2i(Renderer::getScreenWidth() * dir, 0), Vector2i(50, 50));
 }

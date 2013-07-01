@@ -61,11 +61,12 @@ private:
 	TextListComponent<FileData*>* mList;
 	ImageComponent* mScreenshot;
 	TextComponent mDescription;
-	AnimationComponent* mImageAnimation;
+	AnimationComponent<float> * mImageFadeAnimation;
+	AnimationComponent<Vector2i> * mImageOffsetAnimation;
 	ThemeComponent* mTheme;
 
 	ImageComponent mTransitionImage;
-	AnimationComponent mTransitionAnimation;
+	AnimationComponent<Vector2i> * mTransitionAnimation;
 
 	Vector2i getImagePos();
 };
