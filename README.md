@@ -75,6 +75,12 @@ Configuring
 **~/.emulationstation/es_systems.cfg:**
 When first run, an example systems configuration file will be created at $HOME/.emulationstation/es_systems.cfg. This example has some comments explaining how to write the configuration file, and an example RetroArch launch command. See the "Writing an es_systems.cfg" section for more information.
 
+**~/.emulationstation/es_settings.cfg:**
+This file contains some settings for Emulationstation. It will be auto-created the first time your select "Save" from the menu.  
+Some settings inside this file can be of interest:  
+RunOnFolderSelected="<COMMAND>" - You can specify a shell command here that is run when a folder is selected in the GUI / game list. You can use the variable %PATH% to pass the path to the folder on the command line.
+RunOnGameSelected="<COMMAND>" - You can specify a shell command here that is run when a game is selected in the GUI / game list. You can use the variables %ROM%, %BASENAME% or %ROM_RAW% to pass game info on the command line. See "Writing an es_systems.cfg" for more detail.
+
 **~/.emulationstation/es_input.cfg:**
 When you first start EmulationStation, you will be prompted to configure any input devices you wish to use. The process is thus:
 
@@ -149,6 +155,7 @@ An example gamelist.xml:
 		<name>Mega Man 2</name>
 		<desc>Mega Man 2 is a classic NES game which follows Mega Man as he murders eight robot masters.</desc>
 		<image>/home/pi/Screenshots/megaman2.png</image>
+		<hidden>0</hidden>
 	</game>
 </gameList>
 ```

@@ -24,6 +24,8 @@ void Settings::setDefaults()
 {
 	mBoolMap.clear();
 	mIntMap.clear();
+    mFloatMap.clear();
+    mStringMap.clear();
 
 	mBoolMap["PARSEGAMELISTONLY"] = false;
 	mBoolMap["IGNOREGAMELIST"] = false;
@@ -34,8 +36,10 @@ void Settings::setDefaults()
 	mBoolMap["DISABLESOUNDS"] = false;
 
 	mIntMap["DIMTIME"] = 30*1000;
-
     mIntMap["GameListSortIndex"] = 0;
+
+    mStringMap["RunOnGameSelect"] = "";
+    mStringMap["RunOnFolderSelect"] = "";
 }
 
 template <typename K, typename V>
@@ -49,6 +53,17 @@ void saveMap(pugi::xml_document& doc, std::map<K, V>& map, const char* type)
 	}
 }
 
+template <>
+void saveMap(pugi::xml_document& doc, std::map<std::string, std::string>& map, const char* type)
+{
+	for(auto iter = map.begin(); iter != map.end(); iter++)
+	{
+		pugi::xml_node node = doc.append_child(type);
+		node.append_attribute("name").set_value(iter->first.c_str());
+        node.append_attribute("value").set_value(iter->second.c_str());
+	}
+}
+
 void Settings::saveFile()
 {
 	const std::string path = getHomePath() + "/.emulationstation/es_settings.cfg";
@@ -58,6 +73,7 @@ void Settings::saveFile()
 	saveMap<std::string, bool>(doc, mBoolMap, "bool");
 	saveMap<std::string, int>(doc, mIntMap, "int");
 	saveMap<std::string, float>(doc, mFloatMap, "float");
+    saveMap<std::string, std::string>(doc, mStringMap, "string");
 
 	doc.save_file(path.c_str());
 }
@@ -83,6 +99,8 @@ void Settings::loadFile()
 		setInt(node.attribute("name").as_string(), node.attribute("value").as_int());
 	for(pugi::xml_node node = doc.child("float"); node; node = node.next_sibling())
 		setFloat(node.attribute("name").as_string(), node.attribute("value").as_float());
+    for(pugi::xml_node node = doc.child("string"); node; node = node.next_sibling())
+		setString(node.attribute("name").as_string(), node.attribute("value").as_string());
 }
 
 //Print a warning message if the setting we're trying to get doesn't already exist in the map, then return the value in the map.
@@ -102,3 +120,4 @@ void Settings::setMethodName(const std::string& name, type value) \
 SETTINGS_GETSET(bool, mBoolMap, getBool, setBool);
 SETTINGS_GETSET(int, mIntMap, getInt, setInt);
 SETTINGS_GETSET(float, mFloatMap, getFloat, setFloat);
+SETTINGS_GETSET(std::string, mStringMap, getString, setString);

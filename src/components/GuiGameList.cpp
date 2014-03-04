@@ -123,12 +123,13 @@ bool GuiGameList::input(InputConfig* config, Input input)
 
 	mList.input(config, input);
 
+	FileData* file = mList.getSelectedObject();
+
 	if(config->isMappedTo("a", input) && mFolder->getFileCount() > 0 && input.value != 0)
 	{
 		//play select sound
 		mTheme->getSound("menuSelect")->play();
 
-		FileData* file = mList.getSelectedObject();
 		if(file->isFolder()) //if you selected a folder, add this directory to the stack, and use the selected one
 		{
 			mFolderStack.push(mFolder);
@@ -205,6 +206,17 @@ bool GuiGameList::input(InputConfig* config, Input input)
         mWindow->pushGui(new GuiFastSelect(mWindow, this, &mList, mList.getSelectedObject()->getName()[0], mTheme));
 		return true;
 	}
+	
+	if(file->isFolder())
+	{
+		//run user-defined executable when a folder is selected
+		mSystem->RunOnFolderSelect((FolderData*)file);
+	}
+	else 
+	{
+		//run user-defined executable when a game is selected
+		mSystem->RunOnGameSelect((GameData*)file);
+	}
 
 	if(isDetailed())
 	{
@@ -216,7 +228,7 @@ bool GuiGameList::input(InputConfig* config, Input input)
 				clearDetailData();
 		}
 		return true;
-	}
+    }
 
 	return false;
 }
@@ -275,10 +287,27 @@ void GuiGameList::updateList()
 	{
 		FileData* file = mFolder->getFile(i);
 
-		if(file->isFolder())
-			mList.addObject(file->getName(), file, mTheme->getColor("secondary"));
-		else
-			mList.addObject(file->getName(), file, mTheme->getColor("primary"));
+		//check if the file should be hidden
+		if (!((GameData*)file)->getHidden())
+		{
+			if(file->isFolder())
+				mList.addObject(file->getName(), file, mTheme->getColor("secondary"));
+			else
+				mList.addObject(file->getName(), file, mTheme->getColor("primary"));
+		}
+	}
+
+	//run user-defined selection executable for first item
+	FileData* file = mList.getObject(0);
+	if(file->isFolder())
+	{
+		//run user-defined executable when a folder is selected
+		mSystem->RunOnFolderSelect((FolderData*)file);
+	}
+	else 
+	{
+		//run user-defined executable when a game is selected
+		mSystem->RunOnGameSelect((GameData*)file);
 	}
 }
 

@@ -23,6 +23,7 @@ public:
 	static const std::string xmlTagUserRating;
 	static const std::string xmlTagTimesPlayed;
 	static const std::string xmlTagLastPlayed;
+	static const std::string xmlTagHidden;
 
 	GameData(SystemData* system, std::string path, std::string name);
 
@@ -50,6 +51,9 @@ public:
 	std::time_t getLastPlayed() const;
 	void setLastPlayed(std::time_t lastPlayed);
 
+	bool getHidden() const;
+	void setHidden(bool hidden);
+
 	std::string getBashPath() const;
 	std::string getBaseName() const;
 
@@ -66,6 +70,7 @@ private:
 	float mUserRating;
 	size_t mTimesPlayed;
 	std::time_t mLastPlayed;
+	bool mHidden;
 };
 
 #endif

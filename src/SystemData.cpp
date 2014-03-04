@@ -67,6 +67,46 @@ std::string strreplace(std::string& str, std::string replace, std::string with)
 		return str;
 }
 
+void SystemData::RunOnFolderSelect(FolderData* folder)
+{
+    std::string command = Settings::getInstance()->getString("RunOnFolderSelect");
+    if(!command.empty())
+    {
+        command = strreplace(command, "%PATH%", folder->getPath());
+
+	    LOG(LogInfo) << "	" << command;
+	    std::cout << "==============================================\n";
+	    int exitCode = system(command.c_str());
+	    std::cout << "==============================================\n";
+
+	    if(exitCode != 0)
+	    {
+		    LOG(LogWarning) << "...launch terminated with nonzero exit code " << exitCode << "!";
+	    }
+    }
+}
+
+void SystemData::RunOnGameSelect(GameData* game)
+{
+    std::string command = Settings::getInstance()->getString("RunOnGameSelect");
+    if(!command.empty())
+    {
+	    command = strreplace(command, "%ROM%", game->getBashPath());
+	    command = strreplace(command, "%BASENAME%", game->getBaseName());
+	    command = strreplace(command, "%ROM_RAW%", game->getPath());
+
+	    LOG(LogInfo) << "	" << command;
+	    std::cout << "==============================================\n";
+	    int exitCode = system(command.c_str());
+	    std::cout << "==============================================\n";
+
+	    if(exitCode != 0)
+	    {
+		    LOG(LogWarning) << "...launch terminated with nonzero exit code " << exitCode << "!";
+	    }
+    }
+}
+
 void SystemData::launchGame(Window* window, GameData* game)
 {
 	LOG(LogInfo) << "Attempting to launch game...";

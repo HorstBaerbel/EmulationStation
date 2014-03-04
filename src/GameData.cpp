@@ -13,10 +13,11 @@ const std::string GameData::xmlTagRating = "rating";
 const std::string GameData::xmlTagUserRating = "userrating";
 const std::string GameData::xmlTagTimesPlayed = "timesplayed";
 const std::string GameData::xmlTagLastPlayed = "lastplayed";
+const std::string GameData::xmlTagHidden = "hidden";
 
 
 GameData::GameData(SystemData* system, std::string path, std::string name)
-	: mSystem(system), mPath(path), mName(name), mRating(0.0f), mUserRating(0.0f), mTimesPlayed(0), mLastPlayed(0)
+	: mSystem(system), mPath(path), mName(name), mRating(0.0f), mUserRating(0.0f), mTimesPlayed(0), mLastPlayed(0), mHidden(false)
 {
 }
 
@@ -103,6 +104,16 @@ std::time_t GameData::getLastPlayed() const
 void GameData::setLastPlayed(std::time_t lastPlayed)
 {
 	mLastPlayed = lastPlayed;
+}
+
+bool GameData::getHidden() const
+{
+	return mHidden;
+}
+
+void GameData::setHidden(bool hidden)
+{
+	mHidden = hidden;
 }
 
 std::string GameData::getBashPath() const

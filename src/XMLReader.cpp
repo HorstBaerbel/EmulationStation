@@ -206,6 +206,12 @@ void parseGamelist(SystemData* system)
 				std::istringstream(gameNode.child(GameData::xmlTagLastPlayed.c_str()).text().get()) >> lastPlayed;
 				game->setLastPlayed(lastPlayed);
 			}
+			if(gameNode.child(GameData::xmlTagHidden.c_str())) 
+			{
+				bool hidden = false;
+				std::istringstream(gameNode.child(GameData::xmlTagHidden.c_str()).text().get()) >> hidden;
+				game->setHidden(hidden);
+			}
 		}
 		else{
 			LOG(LogWarning) << "Game at \"" << path << "\" does not exist!";
@@ -248,6 +254,9 @@ void addGameDataNode(pugi::xml_node & parent, const GameData * game)
 
 	pugi::xml_node lastPlayedNode = newGame.append_child(GameData::xmlTagLastPlayed.c_str());
 	lastPlayedNode.text().set(std::to_string((unsigned long long)game->getLastPlayed()).c_str());
+
+	pugi::xml_node hiddenNode = newGame.append_child(GameData::xmlTagHidden.c_str());
+	hiddenNode.text().set(std::to_string((unsigned long long)game->getHidden()).c_str());
 }
 
 void updateGamelist(SystemData* system)

@@ -22,6 +22,9 @@ public:
 	std::string getGamelistPath();
 	bool hasGamelist();
 
+    void RunOnFolderSelect(FolderData* file);
+    void RunOnGameSelect(GameData* game);
+
 	void launchGame(Window* window, GameData* game);
 
 	static void deleteSystems();
